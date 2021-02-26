@@ -1,3 +1,9 @@
+## install
+
+```
+luarocks install subproc
+```
+
 ## simple usage
 
 ```
