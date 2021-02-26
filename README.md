@@ -1,4 +1,4 @@
-simple usage:
+## simple usage
 
 ```
 subproc = require 'subproc'
@@ -7,7 +7,10 @@ local output, exit_reason, status = subproc('ls', '-l', '/')
 print(output)
 ```
 
-exported functions:
+you can also use `io.popen(subproc.escape_and_join('command', 'arg1', 'arg2...'))` to safely implement anything that popen can do but this library can't.
+
+
+## exported functions
 
 - `subproc.escape_and_join(...)`: tostring() and shell-escape all arguments,
   then join them with spaces. output is suitable to provide to `io.popen` or
@@ -19,7 +22,8 @@ exported functions:
   and runs with `subproc.shell`.
 - `subproc(...)`: alias of `subproc.subproc`
 
-planned features:
 
-I'd like to add things in future to allow providing stdin, or interactive use
-with coroutines
+## planned features
+
+i'd like to add things in future to allow providing stdin, or interactive use
+with coroutines.
