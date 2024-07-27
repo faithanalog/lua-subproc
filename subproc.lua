@@ -13,6 +13,12 @@ M.PIPE_DEVNULL = PIPE_DEVNULL
 local function escape_and_join_tbl(args)
     local cmdline = {}
 
+	--[[
+	TODO this has a very confusing error message if you pass in a string
+	instead of a table on accident
+	lua: /usr/share/lua/5.4/subproc.lua:16: bad argument #1 to 'for iterator' (table expected, got string).
+	This can happen with run_with or lines_with
+	]]
     for _, arg in pairs(args) do
         arg = tostring(arg)
 
@@ -63,7 +69,10 @@ running works.
         log = nil | true | string | function,
         err = nil | true | function,
 
+		TODO: want a way to pass a string as stdin
         stdin  = nil | PIPE_MODE | '/path/to/file'
+
+        TODO: want a way to append to files
         stdout = nil | PIPE_MODE | '/path/to/file',
         stderr = nil | PIPE_MODE | '/path/to/file'
     }
@@ -449,13 +458,14 @@ M.runner = function(args)
     end
 
     function runner.run_with(extra_args)
-        assert(extra_args.cmd)
+        assert(extra_args.cmd, 'no command provided in `cmd` variable')
         local r = runner.extend(extra_args)
         return r.shell(escape_and_join_tbl(extra_args.cmd))
     end
 
+	-- TODO because of using extend(), we cannot get the exit code
     function runner.lines_with(extra_args)
-        assert(extra_args.cmd)
+        assert(extra_args.cmd, 'no command provided in `cmd` variable')
         local r = runner.extend(extra_args)
         return r.shell_lines(escape_and_join_tbl(extra_args.cmd))
     end
@@ -480,21 +490,6 @@ for k, v in pairs(default_runner) do
     if type(v) == 'function' then
         M[k] = v
     end
-end
-
--- A few shortcuts for instantiating a one-off runner and then running a command
--- with it. Specify configuration as with runner, but also specify a command as
--- cmd = { 'some', 'args' }
-function M.run_with(args)
-    assert(args.cmd)
-    local runner = M.runner(args)
-    return runner.shell(escape_and_join_tbl(args.cmd))
-end
-
-function M.lines_with(args)
-    assert(args.cmd)
-    local runner = M.runner(args)
-    return runner.shell_lines(escape_and_join_tbl(args.cmd))
 end
 
 -- allow subproc() as shorthand for subproc.subproc
