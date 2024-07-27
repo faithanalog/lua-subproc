@@ -244,7 +244,7 @@ M.runner = function(args)
 
     -- Generate our error handler. It'll be a noop if `err` is nil.
     local err_type = type(err)
-    if err == nil then
+    if err == nil or err == false then
         -- no-op
         err = function()
         end
@@ -252,7 +252,8 @@ M.runner = function(args)
     elseif err_type == 'function' then
         -- nothing to do
 
-    elseif err_type == 'boolean' and err then
+	-- explicit `==` because we only want this to pass for booleans
+    elseif err == true then
         -- default error handler
         err = function(exit_reason, exit_code, cmd)
             error(cmd .. ': cmd died by ' .. exit_reason .. ' with code ' .. exit_code)
@@ -268,6 +269,10 @@ M.runner = function(args)
     if log == nil then
         -- do nothing!
 
+	-- nil overrides can't pass through run_with, so false can do that.
+    elseif log == false then
+    	log = nil
+
     elseif log_type == 'string' then
         local prefix = log
         log = function(str)
@@ -276,7 +281,8 @@ M.runner = function(args)
             io.flush()
         end
 
-    elseif log_type == 'boolean' and log then
+	-- explicit `==` because we only want this to pass for booleans
+    elseif log == true then
         log = function(str)
             io.write(str)
             io.flush()
